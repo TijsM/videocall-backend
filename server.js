@@ -5,9 +5,11 @@ const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server);
 
-io.on('connection', socket) => {
+io.on('connection', socket => {
+  console.log('new user')
   
-}
+   socket.emit("yourSocketId", socket.id);
+})
 
 
 
