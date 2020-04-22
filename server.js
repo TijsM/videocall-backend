@@ -5,27 +5,26 @@ const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server);
 
+const users = {};
 
-let ownerId;
-let visitorId;
+io.on("connection", (socket) => {
+  socket.emit("yourSocketId", socket.id);
+  socket.emit("users", users)
 
-io.on('connection', socket => {
-  console.log()
-   socket.emit("yourSocketId", socket.id);
+  socket.on('setOwnerId', (id) => {
+    console.log("in set owner id", id)
+    users.ownerId = id;
 
+    io.sockets.emit('ownerOnline', id)
+  })
 
-   socket.on('setOwnerId', (id) => {
-     ownerId = id
-   })
+  socket.on('setVisitorId', (id) => {
+    console.log("in set visitor id", id)
+    users.visitorId = id;
 
-   socket.on('setVisitorId', (id) => {
-     visitorId
-   })
-  
-    socket.emit('getIds',{
-      ownerId: ownerId,
-      visitorId: visitorId
-    })
-})
+    io.sockets.emit('visitorOnline', id)
+  })
+
+});
 
 server.listen(8000, () => console.log("server is running on port  8000"));
