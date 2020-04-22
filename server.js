@@ -5,10 +5,23 @@ const server = http.createServer(app);
 const socket = require("socket.io");
 const io = socket(server);
 
+
+let ownerId;
+let visitorId;
+
 io.on('connection', socket => {
-  console.log('new user')
-  
    socket.emit("yourSocketId", socket.id);
+
+
+   socket.on('setOwnerId', (id) => {
+     ownerId = id
+   })
+
+   socket.on('setVisitorId', (id) => {
+     visitorId
+   })
+  
+    socket
 })
 
 
