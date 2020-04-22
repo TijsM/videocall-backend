@@ -8,7 +8,7 @@ const io = socket(server);
 //{socketId: socketId}
 //{socket2Id: socket2id}
 //....
-const users = {};
+let users = {};
 
 // is triggered by io.connect("https://video-chat-backend.glitch.me/"); in the frontend
 io.on("connection", socket => {
