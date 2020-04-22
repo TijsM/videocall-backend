@@ -10,6 +10,7 @@ let ownerId;
 let visitorId;
 
 io.on('connection', socket => {
+  console.log()
    socket.emit("yourSocketId", socket.id);
 
 
@@ -21,9 +22,10 @@ io.on('connection', socket => {
      visitorId
    })
   
-    socket
+    socket.emit('getIds',{
+      ownerId: ownerId,
+      visitorId: visitorId
+    })
 })
 
-
-
-server.listen(8000, () => console.log("server is running on port 8000"));
+server.listen(8000, () => console.log("server is running on port  8000"));
