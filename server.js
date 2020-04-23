@@ -25,6 +25,16 @@ io.on("connection", (socket) => {
     io.sockets.emit('visitorOnline', id)
   })
 
+  socket.on("callUser", data => {
+    console.log('in callUser', data.signalData)
+    io.to(data.userToCall).emit('hey', {
+      signal: data.signalData
+    })
+  })
+
+  socket.on('acceptCall', data => {
+    io.to(data.to).emit("callAccepted", data.signal)
+  })
 });
 
-server.listen(8000, () => console.log("server is running on port  8000"));
+server.listen(8001, () => console.log("server is running on port  8001"));
