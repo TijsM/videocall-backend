@@ -57,6 +57,11 @@ app.post("/sendNotificationToAll", (request, response) => {
     secrets.vapIdKeys.privateKey
   );
 
+  const title = request.body.title;
+  const body = request.body.body;
+
+  console.log(title, body);
+
   firestore
     .collection("users")
     .get()
@@ -66,9 +71,18 @@ app.post("/sendNotificationToAll", (request, response) => {
 
         if (user.notificationSubscription) {
           const sub = JSON.parse(user.notificationSubscription);
+          console.log(sub);
 
-          //the entire notifications can be made here (sub, payload, options)
-          push.sendNotification(sub, "test message");
+          console.log("before sending");
+          //the entire notifications can be made here (sub, payload, options)c
+          push.sendNotification(
+            sub,
+            JSON.stringify({
+              name: "toAllFromAdmin",
+              title,
+              body
+            })
+          );
         }
       });
     });
@@ -105,10 +119,13 @@ app.post("/sendNotificationEnteredRoom", (request, response) => {
             const sub = JSON.parse(user.notificationSubscription);
 
             //the entire notifications can be made here (sub, payload, options)
-            push.sendNotification(sub, JSON.stringify({
-              name: 'inRoom',
-              roomName
-            }));
+            push.sendNotification(
+              sub,
+              JSON.stringify({
+                name: "inRoom",
+                roomName,
+              })
+            );
           }
         }
       });
