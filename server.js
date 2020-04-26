@@ -7,8 +7,19 @@ const io = socket(server);
 const push = require("web-push");
 const secrets = require("./secrets");
 const { firestore } = require("./firebase");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const users = {};
+
+app.use(cors());
+
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
 io.on("connection", (socket) => {
   socket.emit("yourSocketId", socket.id);
@@ -29,7 +40,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("callUser", (data) => {
-    console.log("in callUser", data.signalData);
     io.to(data.userToCall).emit("hey", {
       signal: data.signalData,
     });
@@ -53,15 +63,56 @@ app.post("/sendNotificationToAll", (request, response) => {
     .then((data) => {
       data.forEach((dat) => {
         const user = dat.data();
-        console.log(user);
 
-        if(user.notificationSubscription){
+        if (user.notificationSubscription) {
           const sub = JSON.parse(user.notificationSubscription);
+
+          //the entire notifications can be made here (sub, payload, options)
           push.sendNotification(sub, "test message");
         }
       });
     });
+  response.json("NOTIFICATION WAS SENT");
+});
 
+app.post("/sendNotificationEnteredRoom", (request, response) => {
+  push.setVapidDetails(
+    "mailto:tijs.martens.tijs@gmail.com",
+    secrets.vapIdKeys.publicKey,
+    secrets.vapIdKeys.privateKey
+  );
+
+  const roomOwner = request.body.roomownername;
+  const roomName = request.body.roomname;
+
+  console.log("owner: ", roomOwner);
+  console.log("roomName: ", roomName);
+
+  firestore
+    .collection("users")
+    .get()
+    .then((data) => {
+      data.forEach((dat) => {
+        const user = dat.data();
+
+        const trimmedUserName = user.userName.split(" ").join("");
+        const trimmedRooms = user.rooms.map((room) => {
+          return room.split(" ").join("");
+        });
+
+        if (roomOwner === trimmedUserName && trimmedRooms.includes(roomName)) {
+          if (user.notificationSubscription) {
+            const sub = JSON.parse(user.notificationSubscription);
+
+            //the entire notifications can be made here (sub, payload, options)
+            push.sendNotification(sub, JSON.stringify({
+              name: 'inRoom',
+              roomName
+            }));
+          }
+        }
+      });
+    });
   response.json("NOTIFICATION WAS SENT");
 });
 
