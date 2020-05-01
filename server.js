@@ -73,7 +73,8 @@ io.on("connection", socket => {
   socket.on("callUser", data => {
     console.log("in callUser");
     io.to(data.userToCall).emit("hey", {
-      signal: data.signalData
+      signal: data.signalData,
+      users
     });
   });
 
@@ -81,7 +82,7 @@ io.on("connection", socket => {
     io.to(data.to).emit("callAccepted", data.signal);
   });
 
-  console.log("end of method users", prettyFormat(users));
+  console.log("end of connection method -  users", prettyFormat(users));
 });
 
 app.post("/sendNotificationToAll", (request, response) => {
